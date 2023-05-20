@@ -1,6 +1,7 @@
 from client import Client
 from back_door import BackDoor
 import sys
+from typing import Union
 
 
 def shutdown():
@@ -8,31 +9,33 @@ def shutdown():
     sys.exit()
 
 
-def process_arg(arg):
-    if len(arg) != 1:
+def process_arg(arg) -> Union[bool, str]:
+    if len(arg) < 1 or len(arg) > 2:
         shutdown()
     elif arg[0] == "SERVER":
-        return True
-    elif arg[0] == "CLIENT":
         return False
+    elif arg[0] == "CLIENT":
+        return arg[1]
     else:
         shutdown()
 
 
-def run_server():
-    B = BackDoor()
+def run_server() -> None:
+    b = BackDoor()
+    b.start()
 
 
-def run_client():
-    C = Client()
+def run_client(ip: str) -> None:
+    c = Client(ip)
+    c.start()
 
 
-def main():
-    mode = process_arg(sys.argv[1:])
-    if mode:
-        run_server()
+def main() -> None:
+    ip = process_arg(sys.argv[1:])
+    if ip:
+        run_client(ip)
     else:
-        run_client()
+        run_server()
 
 
 if __name__ == "__main__":
