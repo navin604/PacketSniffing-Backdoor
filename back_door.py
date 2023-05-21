@@ -50,7 +50,7 @@ class BackDoor:
         print("1")
         if UDP in packet:
             print(2)
-            print(packet[UDP].payload)
+            print(f"{packet[UDP].load.decode()} <- payload")
             #self.process_packets(packet[UDP].sport)
 
     def decrypt_data(self):
