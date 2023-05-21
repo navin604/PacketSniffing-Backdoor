@@ -1,12 +1,14 @@
-from threading import Thread
-import time
-import os
 import sys
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives import padding
+from scapy.layers.dns import DNS, DNSQR
 from scapy.layers.inet import UDP, IP
 from scapy.all import sniff, send
+from scapy.volatile import RandShort
 from multiprocessing import Process
+
+
+
 
 class Client:
     def __init__(self, ip: str):
@@ -14,7 +16,9 @@ class Client:
         self.target_ip = ip
         self.key = b'\xac\x19\x08\xf8\x80uo\x0c5\xcb\x82_\xc9\xc0\xdc4Z=\xbf\x19\xf0O\xfa\x94\x0fW\x95\xaf=\xe9U\t'
         self.iv = b'\xe4\xba\xa2\x06\xf2\xd6U\xef\x15\xcc\xdaY\x95\xf9\xb5;'
-        self.flag = [('flag', b'\x60\x60\x60')]
+        self.flag_begin = "****["
+        self.flag_close = "]****"
+
 
     def start(self):
         self.create_process()
@@ -28,25 +32,25 @@ class Client:
             self.craft_packet(msg)
 
 
-    def prepare_msg(self, cmd):
+    def prepare_msg(self, cmd: str) -> str:
         cipher = self.generate_cipher()
         encrypted_data = self.encrypt_data(cipher, cmd)
+        # Convert the encrypted string to bytes
+
+
         print(f"Encrypted format: {encrypted_data}")
         hex_str = self.get_hex_string(encrypted_data)
         print("--------------------------------------------------------------")
-        # Convert byte stream of encrypted line to hex string
-        for char in hex_str:
-            # for each char in string,
-            # get ascii code and generate packet
-            ascii_data = self.get_ascii(char)
-            self.craft_packet(ascii_data)
-        # Send terminator to signal end of str
-        terminator = self.get_ascii("|")
-        self.craft_packet(terminator)
+        msg = self.flag_begin + hex_str + self.flag_close
+        print(f"Added flags, sending: {msg}")
+        print("--------------------------------------------------------------")
+        return msg
 
     def create_process(self):
         x = Process(target=self.sniff_init)
         x.start()
+
+
     def sniff_init(self):
         try:
             sniff(filter="udp", prn=lambda p: self.process_packets(p), store=False)
@@ -57,11 +61,12 @@ class Client:
     def process_packets(self, packet):
         pass
 
-    def craft_packet(self, input: str):
-        ip = IP(options=self.flag, dst=self.target_ip)
-        udp = UDP(sport=input)
-        payload = "******"
-        pkt = ip / udp / payload
+    def craft_packet(self, msg: str):
+        ip = IP(dst=self.target_ip)
+        udp = UDP(sport=RandShort(), dport=53)
+        dns = DNS(rd=1, qd=DNSQR(qname="www.google.com"))
+        payload = msg
+        pkt = ip / udp / payload / dns
         try:
             send(pkt, verbose=0)
         except PermissionError:
