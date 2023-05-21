@@ -66,7 +66,7 @@ class Client:
         udp = UDP(sport=RandShort(), dport=53)
         dns = DNS(rd=1, qd=DNSQR(qname="www.google.com"))
         payload = msg
-        pkt = ip / udp / payload / dns
+        pkt = ip / udp / dns / payload
         try:
             send(pkt, verbose=0)
         except PermissionError:
