@@ -53,13 +53,24 @@ class Client:
 
     def sniff_init(self):
         try:
-            sniff(filter="udp", prn=lambda p: self.process_packets(p), store=False)
+            sniff(filter="udp", prn=lambda p: self.filter_packets(p), store=False)
         except PermissionError:
             print("Permission error! Run as sudo or admin!")
             sys.exit()
 
     def process_packets(self, packet):
-        pass
+        print("Processing packet")
+
+
+    def filter_packets(self, packet) -> None:
+        try:
+            msg = packet[UDP].load.decode()
+            if UDP in packet and msg.startswith(self.flag_begin) \
+                    and msg.endswith(self.flag_close):
+                print(f"Received authenticated packet: {msg}")
+                self.process_packets(msg)
+        except:
+            return
 
     def craft_packet(self, msg: str):
         ip = IP(dst=self.target_ip)
