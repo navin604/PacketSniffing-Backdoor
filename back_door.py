@@ -36,7 +36,9 @@ class BackDoor:
             sys.exit()
 
     def prepare_msg(self, cmd: str) -> str:
+        print("in prepare")
         cipher = self.generate_cipher()
+        print("ciph")
         encrypted_data = self.encrypt_data(cipher, cmd)
         # Convert the encrypted string to bytes
 
