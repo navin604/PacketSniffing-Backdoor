@@ -59,8 +59,13 @@ class Client:
             print("Permission error! Run as sudo or admin!")
             sys.exit()
 
-    def process_packets(self, packet):
-        print("Processing packet")
+    def process_packets(self, msg: str):
+        print("Stripping flags to extract data")
+        stripped_msg = msg.strip(self.flag_begin).rstrip(self.flag_close)
+        print("stripped")
+        decrypted_msg = self.decrypt_data(stripped_msg)
+        print("DEcryopted")
+        print(decrypted_msg)
 
 
     def filter_packets(self, packet) -> None:
