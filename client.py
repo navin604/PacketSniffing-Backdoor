@@ -18,6 +18,7 @@ class Client:
         self.iv = b'\xe4\xba\xa2\x06\xf2\xd6U\xef\x15\xcc\xdaY\x95\xf9\xb5;'
         self.flag_begin = "****["
         self.flag_close = "]****"
+        self.port = 8888
 
 
     def start(self):
@@ -53,7 +54,7 @@ class Client:
 
     def sniff_init(self):
         try:
-            sniff(filter="udp", prn=lambda p: self.filter_packets(p), store=False)
+            sniff(filter=f"udp and port {self.port}", prn=lambda p: self.filter_packets(p), store=False)
         except PermissionError:
             print("Permission error! Run as sudo or admin!")
             sys.exit()
