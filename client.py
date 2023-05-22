@@ -13,6 +13,7 @@ from multiprocessing import Process
 class Client:
     def __init__(self, ip: str):
         print(f"Client has been initiated.\nTarget: {ip}")
+        print("--------------------------------------------------------------")
         self.target_ip = ip
         self.key = b'\xac\x19\x08\xf8\x80uo\x0c5\xcb\x82_\xc9\xc0\xdc4Z=\xbf\x19\xf0O\xfa\x94\x0fW\x95\xaf=\xe9U\t'
         self.iv = b'\xe4\xba\xa2\x06\xf2\xd6U\xef\x15\xcc\xdaY\x95\xf9\xb5;'
@@ -40,7 +41,6 @@ class Client:
 
         print(f"Encrypted format: {encrypted_data}")
         hex_str = self.get_hex_string(encrypted_data)
-        print("--------------------------------------------------------------")
         msg = self.flag_begin + hex_str + self.flag_close
         print(f"Added flags, sending: {msg}")
         print("--------------------------------------------------------------")
@@ -61,9 +61,8 @@ class Client:
     def process_packets(self, msg: str):
         stripped_msg = msg.strip(self.flag_begin).rstrip(self.flag_close)
         decrypted_msg = self.decrypt_data(stripped_msg)
-        print(f"Decrypted message")
-        print(f"----------------------------------------------------------")
-        print(f"{decrypted_msg}")
+        output = f"\nCommand Response:\n {decrypted_msg}"
+        print(f"\u001B[s\u001B[A\u001B[999D\u001B[S\u001B[L{output}\u001B[u", end="", flush=True)
 
 
 
@@ -72,7 +71,6 @@ class Client:
             msg = packet[UDP].load.decode()
             if UDP in packet and packet[UDP].dport == self.port and msg.startswith(self.flag_begin) \
                     and msg.endswith(self.flag_close):
-                print(f"Received authenticated packet: {msg}")
                 self.process_packets(msg)
         except:
             return
