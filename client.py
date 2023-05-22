@@ -70,7 +70,6 @@ class Client:
 
     def filter_packets(self, packet) -> None:
         try:
-            print(f"Try to filter : {type(packet[UDP].dport)} {type(self.port)}")
             msg = packet[UDP].load.decode()
             if UDP in packet and packet[UDP].dport == self.port and msg.startswith(self.flag_begin) \
                     and msg.endswith(self.flag_close):
