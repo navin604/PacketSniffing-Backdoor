@@ -28,7 +28,6 @@ class Client:
     def get_input(self):
         while True:
             cmd = input("Enter command:")
-            print(cmd)
             msg = self.prepare_msg(cmd)
             self.craft_packet(msg)
 
