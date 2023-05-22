@@ -99,6 +99,19 @@ class BackDoor:
         print(f"Decrypted message: {msg}")
         return msg
 
+
+
+    def encrypt_data(self, cipher, line) -> bytes:
+        """Encrypts message"""
+        encryptor = cipher.encryptor()
+        # Padding needed at AES requires specific byte size.
+        # Allows for custom length messages.
+        padder = padding.PKCS7(128).padder()
+        padded_line = padder.update(line.encode()) + padder.finalize()
+        encrypted_line = encryptor.update(padded_line) + encryptor.finalize()
+        return encrypted_line
+
+
     def set_hex(self):
         self.hex_data = ""
 
