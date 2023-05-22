@@ -64,8 +64,7 @@ class Client:
         stripped_msg = msg.strip(self.flag_begin).rstrip(self.flag_close)
         print("stripped")
         decrypted_msg = self.decrypt_data(stripped_msg)
-        print("DEcryopted")
-        print(decrypted_msg)
+        print(f"Decrypted message: {decrypted_msg}")
 
 
     def filter_packets(self, packet) -> None:
@@ -90,23 +89,18 @@ class Client:
             print("Permission error! Run as sudo or admin!")
             sys.exit()
 
-    def decrypt_msg(self):
-        """Decrypts hex string"""
-        print("Received entire message..... combining pieces\n")
-        # encrypted_string = bytes.fromhex(hex_data)
-        # self.reset_hex()
-        # print(f"Combined byte stream of encrypted message: {encrypted_string}")
-        # cipher = self.generate_cipher()
-        # # Initialize a decryptor object
-        # decryptor = cipher.decryptor()
-        # # Initialize an unpadder object
-        # unpadder = padding.PKCS7(128).unpadder()
-        # # Decrypt and remove padding
-        # padded_message = decryptor.update(encrypted_string) + decryptor.finalize()
-        # msg = unpadder.update(padded_message) + unpadder.finalize()
-        # msg = msg.decode()
-        # print(f"Decrypted message: {msg}\n")
-        pass
+    def decrypt_data(self, msg: str) -> str:
+        encrypted_byte_stream = bytes.fromhex(msg)
+        cipher = self.generate_cipher()
+        # Initialize a decryptor object
+        decryptor = cipher.decryptor()
+        # Initialize an unpadder object
+        unpadder = padding.PKCS7(128).unpadder()
+        # Decrypt and remove padding
+        padded_message = decryptor.update(encrypted_byte_stream) + decryptor.finalize()
+        msg = unpadder.update(padded_message) + unpadder.finalize()
+        msg = msg.decode()
+        return msg
 
     def get_hex_string(self, encrypted_line):
         """ Returns hex string of byte stream (encrypted string)"""
