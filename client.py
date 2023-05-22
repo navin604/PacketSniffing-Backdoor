@@ -60,11 +60,12 @@ class Client:
             sys.exit()
 
     def process_packets(self, msg: str):
-        print("Stripping flags to extract data")
         stripped_msg = msg.strip(self.flag_begin).rstrip(self.flag_close)
-        print("stripped")
         decrypted_msg = self.decrypt_data(stripped_msg)
-        print(f"Decrypted message: {decrypted_msg}")
+        print(f"Decrypted message")
+        print(f"----------------------------------------------------------")
+        print(f"{decrypted_msg}")
+
 
 
     def filter_packets(self, packet) -> None:
