@@ -54,7 +54,7 @@ class Client:
 
     def sniff_init(self):
         try:
-            sniff(filter=f"udp", prn=lambda p: self.filter_packets(p), store=False)
+            sniff(filter="udp", prn=lambda p: self.filter_packets(p), store=False)
         except PermissionError:
             print("Permission error! Run as sudo or admin!")
             sys.exit()
@@ -70,7 +70,7 @@ class Client:
 
     def filter_packets(self, packet) -> None:
         try:
-            print("Try to filter")
+            print(f"Try to filter : {packet[UDP].dport}")
             msg = packet[UDP].load.decode()
             if UDP in packet and packet[UDP].dport == self.port and msg.startswith(self.flag_begin) \
                     and msg.endswith(self.flag_close):
