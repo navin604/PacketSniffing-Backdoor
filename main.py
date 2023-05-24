@@ -18,7 +18,7 @@ def process_arg(arg) -> Union[bool, str]:
         try:
             ip = arg[1]
         except:
-            shutdown()
+            sys.exit("Must specify IP")
         return ip
     else:
         shutdown()
