@@ -15,7 +15,11 @@ def process_arg(arg) -> Union[bool, str]:
     elif arg[0] == "SERVER":
         return False
     elif arg[0] == "CLIENT":
-        return arg[1]
+        try:
+            ip = arg[1]
+        except:
+            shutdown()
+        return ip
     else:
         shutdown()
 
