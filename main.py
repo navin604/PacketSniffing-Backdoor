@@ -10,7 +10,7 @@ def shutdown():
 
 
 def process_arg(arg) -> Union[bool, str]:
-    if len(arg) < 1 or len(arg) > 2:
+    if not arg or len(arg) > 2:
         shutdown()
     elif arg[0] == "SERVER":
         return False
@@ -31,7 +31,10 @@ def run_client(ip: str) -> None:
 
 
 def main() -> None:
-    ip = process_arg(sys.argv[1:])
+    try:
+        ip = process_arg(sys.argv[1:])
+    except IndexError as e:
+        sys.exit(e)
     if ip:
         run_client(ip)
     else:
