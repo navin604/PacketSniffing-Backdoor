@@ -31,10 +31,7 @@ def run_client(ip: str) -> None:
 
 
 def main() -> None:
-    try:
-        ip = process_arg(sys.argv[1:])
-    except IndexError as e:
-        sys.exit(e)
+    ip = process_arg(sys.argv[1:])
     if ip:
         run_client(ip)
     else:
