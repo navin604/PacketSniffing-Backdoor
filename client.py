@@ -91,8 +91,8 @@ class Client:
         pkt = ip / udp / dns / payload
         try:
             send(pkt, verbose=0)
-        except PermissionError:
-            print("Permission error! Run as sudo or admin!")
+        except (OSError, PermissionError) as e:
+            print(f"{e}")
             sys.exit()
 
     def decrypt_data(self, msg: str) -> str:
